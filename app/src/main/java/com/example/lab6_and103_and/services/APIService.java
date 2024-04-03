@@ -54,4 +54,10 @@ public interface APIService {
                                                    @Path("id") String id,
                                                    @Part ArrayList<MultipartBody.Part> ds
     );
+
+    @Multipart
+    @PUT("/update-no-image/{id}")
+    Call<Fruits> updateNoImage(@PartMap Map<String, RequestBody> requestBodyMap,
+                        @Path("id") String id
+    );
 }

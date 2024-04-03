@@ -98,36 +98,65 @@ public class UpdateFruits extends AppCompatActivity {
                     String _description = uddescription.getText().toString().trim();
                     String _distributor = uddistributor.getText().toString().trim();
 
-                    mapRequestBody.put("name", getRequestBody(_name));
-                    mapRequestBody.put("quantity", getRequestBody(_quantity));
-                    mapRequestBody.put("price", getRequestBody(_price));
-                    mapRequestBody.put("description", getRequestBody(_description));
-                    mapRequestBody.put("distributor", getRequestBody(_distributor));
-                    ArrayList<MultipartBody.Part> _ds_image = new ArrayList<>();
-                    ds_image.forEach(file1 -> {
-                        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file1);
-                        MultipartBody.Part multipartBodyPart = MultipartBody.Part.createFormData("image", file1.getName(), requestFile);
-                        _ds_image.add(multipartBodyPart);
-                    });
+                    // Kiểm tra xem có ảnh mới được chọn không
+                    if(ds_image.size() > 0) {
+                        ArrayList<MultipartBody.Part> _ds_image = new ArrayList<>();
 
-                    Call<Fruits> call = apiService.update(mapRequestBody, fruits.get_id(), _ds_image);
-                    call.enqueue(new Callback<Fruits>() {
-                        @Override
-                        public void onResponse(Call<Fruits> call, Response<Fruits> response) {
-                            if (response.isSuccessful()) {
-                                Toast.makeText(UpdateFruits.this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(UpdateFruits.this, MainActivity.class));
+                        ds_image.forEach(file1 -> {
+                            RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file1);
+                            MultipartBody.Part multipartBodyPart = MultipartBody.Part.createFormData("image", file1.getName(), requestFile);
+                            _ds_image.add(multipartBodyPart);
+                        });
+
+                        mapRequestBody.put("name", getRequestBody(_name));
+                        mapRequestBody.put("quantity", getRequestBody(_quantity));
+                        mapRequestBody.put("price", getRequestBody(_price));
+                        mapRequestBody.put("description", getRequestBody(_description));
+                        mapRequestBody.put("distributor", getRequestBody(_distributor));
+
+                        Call<Fruits> call = apiService.update(mapRequestBody, fruits.get_id(), _ds_image);
+                        call.enqueue(new Callback<Fruits>() {
+                            @Override
+                            public void onResponse(Call<Fruits> call, Response<Fruits> response) {
+                                if (response.isSuccessful()) {
+                                    Toast.makeText(UpdateFruits.this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(UpdateFruits.this, MainActivity.class));
+                                }
                             }
-                        }
 
-                        @Override
-                        public void onFailure(Call<Fruits> call, Throwable t) {
-                            Toast.makeText(UpdateFruits.this, "Loi OnFailure", Toast.LENGTH_SHORT).show();
-                            Log.e("Main", t.getMessage());
-                        }
-                    });
+                            @Override
+                            public void onFailure(Call<Fruits> call, Throwable t) {
+                                Toast.makeText(UpdateFruits.this, "Loi OnFailure", Toast.LENGTH_SHORT).show();
+                                Log.e("Main", t.getMessage());
+                            }
+                        });
+                    } else {
+                        mapRequestBody.put("name", getRequestBody(_name));
+                        mapRequestBody.put("quantity", getRequestBody(_quantity));
+                        mapRequestBody.put("price", getRequestBody(_price));
+                        mapRequestBody.put("description", getRequestBody(_description));
+                        mapRequestBody.put("distributor", getRequestBody(_distributor));
+
+                        Call<Fruits> call = apiService.updateNoImage(mapRequestBody, fruits.get_id());
+                        call.enqueue(new Callback<Fruits>() {
+                            @Override
+                            public void onResponse(Call<Fruits> call, Response<Fruits> response) {
+                                if (response.isSuccessful()) {
+                                    Toast.makeText(UpdateFruits.this, "Cập nhật thành công no image", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(UpdateFruits.this, MainActivity.class));
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<Fruits> call, Throwable t) {
+                                Toast.makeText(UpdateFruits.this, "Loi OnFailure", Toast.LENGTH_SHORT).show();
+                                Log.e("Main", t.getMessage());
+                            }
+                        });
+                    }
                 }
             });
+
         }
 
     }
@@ -163,16 +192,14 @@ public class UpdateFruits extends AppCompatActivity {
                                 ds_image.add(file);
                             }
 
-
                         } else if (data.getData() != null) {
-                            // Trường hợp chỉ chọn một hình ảnh
                             Uri imageUri = data.getData();
                             tempUri = imageUri;
-                            // Thực hiện các xử lý với imageUri
                             File file = createFileFromUri(imageUri, "image");
                             ds_image.add(file);
 
                         }
+
                         if (tempUri != null) {
                             Glide.with(UpdateFruits.this)
                                     .load(tempUri)
