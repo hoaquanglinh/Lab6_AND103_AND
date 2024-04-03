@@ -28,7 +28,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FruitsAdapter.OnItemLongClickListener {
     ListView listView;
     APIService apiService;
     ArrayList<Fruits> list;
@@ -66,7 +66,15 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<ArrayList<Fruits>> call, Response<ArrayList<Fruits>> response) {
                 list = response.body();
 
-                adapter = new FruitsAdapter(list, getApplicationContext(), MainActivity.this);
+                adapter = new FruitsAdapter(list, getApplicationContext(), MainActivity.this, new FruitsAdapter.OnItemLongClickListener() {
+                    @Override
+                    public void onItemLongClick(Fruits fruits) {
+                        // Xử lý sự kiện khi item được nhấn giữ
+                        Intent intent = new Intent(MainActivity.this, UpdateFruits.class);
+                        intent.putExtra("fruits", fruits);
+                        startActivity(intent);
+                    }
+                });
 
                 listView.setAdapter(adapter);
             }
@@ -118,4 +126,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onItemLongClick(Fruits fruits) {
+        Intent intent = new Intent(this, UpdateFruits.class);
+        intent.putExtra("fruits", fruits);
+        startActivity(intent);
+    }
 }

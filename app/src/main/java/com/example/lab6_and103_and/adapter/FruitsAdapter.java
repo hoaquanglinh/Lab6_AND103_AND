@@ -26,11 +26,16 @@ public class FruitsAdapter extends BaseAdapter {
     private ArrayList<Fruits> list;
     private Context context;
     MainActivity activity;
+    private OnItemLongClickListener onItemLongClickListener;
+    public interface OnItemLongClickListener {
+        void onItemLongClick(Fruits fruits);
+    }
 
-    public FruitsAdapter(ArrayList<Fruits> list, Context context, MainActivity activity) {
+    public FruitsAdapter(ArrayList<Fruits> list, Context context, MainActivity activity, OnItemLongClickListener onItemLongClickListener) {
         this.list = list;
         this.context = context;
         this.activity = activity;
+        this.onItemLongClickListener = onItemLongClickListener;
     }
 
     @Override
@@ -81,8 +86,8 @@ public class FruitsAdapter extends BaseAdapter {
         rowView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-
-                return false;
+                onItemLongClickListener.onItemLongClick(fruits);
+                return true;
             }
         });
 

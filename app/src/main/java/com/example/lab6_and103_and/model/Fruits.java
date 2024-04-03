@@ -1,8 +1,9 @@
 package com.example.lab6_and103_and.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Fruits {
+public class Fruits implements Serializable {
     private String _id;
     private ArrayList<String> image;
     private String name;

@@ -12,18 +12,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.lab6_and103_and.model.Fruits;
 import com.example.lab6_and103_and.services.APIService;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,84 +38,102 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class AddFruits extends AppCompatActivity {
-    ImageView image;
-    EditText edname, edquatity, edprice, eddistributor, eddescription;
+public class UpdateFruits extends AppCompatActivity {
+    EditText udname, udquantity, udprice, uddistributor, uddescription;
+    ImageView udImage;
     private ArrayList<File> ds_image;
     APIService apiService;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_fruits);
+        setContentView(R.layout.activity_update_fruits);
 
-        image = findViewById(R.id.edimage);
-        edname = findViewById(R.id.edname);
-        edquatity = findViewById(R.id.edquantity);
-        edprice = findViewById(R.id.edprice);
-        eddistributor = findViewById(R.id.eddistributor);
-        eddescription = findViewById(R.id.eddescription);
+        udname = findViewById(R.id.udname);
+        udquantity = findViewById(R.id.udquantity);
+        udprice = findViewById(R.id.udprice);
+        uddescription = findViewById(R.id.uddescription);
+        uddistributor = findViewById(R.id.uddistributor);
+        udImage = findViewById(R.id.udimage);
 
         ds_image = new ArrayList<>();
 
+        Intent intent = getIntent();
+
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(apiService.DOMAIN)
+                .baseUrl(APIService.DOMAIN)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        apiService = retrofit.create(APIService.class);
+        apiService = retrofit.create((APIService.class));
 
-        image.setOnClickListener(new View.OnClickListener() {
+        udImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 chooseImage();
             }
         });
 
-        findViewById(R.id.btnAddSP).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Map<String, RequestBody> mapRequestBody = new HashMap<>();
-                String _name = edname.getText().toString().trim();
-                String _quantity = edquatity.getText().toString().trim();
-                String _price = edprice.getText().toString().trim();
-                String _description = eddescription.getText().toString().trim();
-                String _distributor = eddistributor.getText().toString().trim();
-
-                mapRequestBody.put("name", getRequestBody(_name));
-                mapRequestBody.put("quantity", getRequestBody(_quantity));
-                mapRequestBody.put("price", getRequestBody(_price));
-                mapRequestBody.put("description", getRequestBody(_description));
-                mapRequestBody.put("distributor", getRequestBody(_distributor));
-                ArrayList<MultipartBody.Part> _ds_image = new ArrayList<>();
-                ds_image.forEach(file1 -> {
-                    RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file1);
-                    MultipartBody.Part multipartBodyPart = MultipartBody.Part.createFormData("image", file1.getName(), requestFile);
-                    _ds_image.add(multipartBodyPart);
-                });
-
-                Call<Fruits> call = apiService.addFruits(mapRequestBody, _ds_image);
-                call.enqueue(new Callback<Fruits>() {
-                    @Override
-                    public void onResponse(Call<Fruits> call, Response<Fruits> response) {
-                        if (response.isSuccessful()) {
-                            Toast.makeText(AddFruits.this, "Thêm mới thành công", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(AddFruits.this, MainActivity.class));
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<Fruits> call, Throwable t) {
-                        Toast.makeText(AddFruits.this, "Loi OnFailure", Toast.LENGTH_SHORT).show();
-                        Log.e("Main", t.getMessage());
-                    }
-                });
+        if (intent != null) {
+            Fruits fruits = (Fruits) intent.getSerializableExtra("fruits");
+            if (fruits != null) {
+                udname.setText(fruits.getName());
+                udquantity.setText(fruits.getQuantity() + "");
+                udprice.setText(fruits.getPrice() + "");
+                uddistributor.setText(fruits.getDistributor());
+                uddescription.setText(fruits.getDescription());
+                Glide.with(UpdateFruits.this)
+                        .load(fruits.getImage().get(0))
+                        .thumbnail(Glide.with(UpdateFruits.this).load(R.drawable.baseline_broken_image_24))
+                        .skipMemoryCache(true)
+                        .into(udImage);
             }
-        });
+
+            findViewById(R.id.btnUdSP).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {;
+                    Map<String, RequestBody> mapRequestBody = new HashMap<>();
+                    String _name = udname.getText().toString().trim();
+                    String _quantity = udquantity.getText().toString().trim();
+                    String _price = udprice.getText().toString().trim();
+                    String _description = uddescription.getText().toString().trim();
+                    String _distributor = uddistributor.getText().toString().trim();
+
+                    mapRequestBody.put("name", getRequestBody(_name));
+                    mapRequestBody.put("quantity", getRequestBody(_quantity));
+                    mapRequestBody.put("price", getRequestBody(_price));
+                    mapRequestBody.put("description", getRequestBody(_description));
+                    mapRequestBody.put("distributor", getRequestBody(_distributor));
+                    ArrayList<MultipartBody.Part> _ds_image = new ArrayList<>();
+                    ds_image.forEach(file1 -> {
+                        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file1);
+                        MultipartBody.Part multipartBodyPart = MultipartBody.Part.createFormData("image", file1.getName(), requestFile);
+                        _ds_image.add(multipartBodyPart);
+                    });
+
+                    Call<Fruits> call = apiService.update(mapRequestBody, fruits.get_id(), _ds_image);
+                    call.enqueue(new Callback<Fruits>() {
+                        @Override
+                        public void onResponse(Call<Fruits> call, Response<Fruits> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(UpdateFruits.this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(UpdateFruits.this, MainActivity.class));
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Fruits> call, Throwable t) {
+                            Toast.makeText(UpdateFruits.this, "Loi OnFailure", Toast.LENGTH_SHORT).show();
+                            Log.e("Main", t.getMessage());
+                        }
+                    });
+                }
+            });
+        }
+
     }
 
     private RequestBody getRequestBody(String value) {
-        return RequestBody.create(MediaType.parse("multipart/form-data"), value);
+        return RequestBody.create(MediaType.parse("multipart/form-data"),value);
     }
 
     private void chooseImage() {
@@ -159,11 +174,11 @@ public class AddFruits extends AppCompatActivity {
 
                         }
                         if (tempUri != null) {
-                            Glide.with(AddFruits.this)
+                            Glide.with(UpdateFruits.this)
                                     .load(tempUri)
-                                    .thumbnail(Glide.with(AddFruits.this).load(R.drawable.baseline_broken_image_24))
+                                    .thumbnail(Glide.with(UpdateFruits.this).load(R.drawable.baseline_broken_image_24))
                                     .skipMemoryCache(true)
-                                    .into(image);
+                                    .into(udImage);
                         }
                     }
                 }
@@ -188,5 +203,4 @@ public class AddFruits extends AppCompatActivity {
             return null;
         }
     }
-
 }
