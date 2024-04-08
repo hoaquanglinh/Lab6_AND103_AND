@@ -5,6 +5,7 @@ import com.example.lab6_and103_and.model.Response;
 import com.example.lab6_and103_and.model.User;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
@@ -20,6 +21,7 @@ import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.PartMap;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface APIService {
     String DOMAIN = "http://10.0.2.2:3000/";
@@ -39,7 +41,7 @@ public interface APIService {
             @Part("password") RequestBody password,
             @Part("email") RequestBody email,
             @Part("name") RequestBody name,
-            @Part MultipartBody.Part avartar
+            @Part MultipartBody.Part avatar
     );
 
     @POST("/login")
@@ -60,4 +62,15 @@ public interface APIService {
     Call<Fruits> updateNoImage(@PartMap Map<String, RequestBody> requestBodyMap,
                         @Path("id") String id
     );
+
+    @GET("/search")
+    Call<ArrayList<Fruits>> searchFruits(@Query("key") String query);
+    @GET("/giam-dan")
+    Call<List<Fruits>> getGiam();
+
+    @GET("/tang-dan")
+    Call<List<Fruits>> getTang();
+
+    @GET("/search-gia")
+    Call<ArrayList<Fruits>> searchGia(@Query("key") Double query);
 }

@@ -90,6 +90,7 @@ public class AddFruits extends AppCompatActivity {
                 mapRequestBody.put("price", getRequestBody(_price));
                 mapRequestBody.put("description", getRequestBody(_description));
                 mapRequestBody.put("distributor", getRequestBody(_distributor));
+
                 ArrayList<MultipartBody.Part> _ds_image = new ArrayList<>();
                 ds_image.forEach(file1 -> {
                     RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file1);
@@ -115,6 +116,8 @@ public class AddFruits extends AppCompatActivity {
                 });
             }
         });
+
+
     }
 
     private RequestBody getRequestBody(String value) {
@@ -126,7 +129,7 @@ public class AddFruits extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+//        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         getImage.launch(intent);
 
     }

@@ -71,6 +71,7 @@ public class FruitsAdapter extends BaseAdapter {
         tvSoLuong.setText(fruits.getQuantity() + "");
         tvGia.setText(numberFormat.format(fruits.getPrice()));
         tvCongTy.setText(fruits.getDistributor());
+
         Glide.with(context)
                 .load(fruits.getImage().get(0))
                 .thumbnail(Glide.with(context).load(R.drawable.loading))
